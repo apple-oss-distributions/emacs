@@ -838,9 +838,12 @@ emacs: temacs ${etc}DOC ${lisp}
 	rm -f emacs
 	ln temacs emacs
 #else
-	if [ -n "`file temacs | grep 'Mach-O fat file'`" ]; then	\
+	if [ -n "`file temacs | grep 'Mach-O universal binary'`" ]; then	\
 		mv temacs emacs-undumped;				\
 		lipo -thin `arch` -output temacs emacs-undumped;	\
+	else if [ -n "`file temacs | grep 'Mach-O'`" ]; then		\
+		cp temacs emacs-undumped;				\
+	fi								\
 	fi
 #ifdef HAVE_SHM
 	LC_ALL=C ./temacs -nl -batch -l loadup dump
@@ -1237,6 +1240,11 @@ bootstrap-emacs: bootstrap-temacs bootstrap-doc
 #ifdef CANNOT_DUMP
 	ln temacs bootstrap-emacs
 #else
+	if [ -n "`file temacs | grep 'Mach-O universal binary'`" ]; then        \
+		mv temacs emacs-undumped;                               \
+		lipo -thin `arch` -output temacs emacs-undumped;        \
+		rm emacs-undumped;					\
+	fi
 #ifdef HAVE_SHM
 	./temacs -nl -batch -l loadup bootstrap
 #else /* ! defined (HAVE_SHM) */

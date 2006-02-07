@@ -30,7 +30,7 @@ installsrc :
 		fi; \
 	done
 	$(SHELL) -ec \
-	'cd $(SRCROOT)/emacs; \
+	'unset CC_PRINT_OPTIONS_FILE CC_PRINT_OPTIONS; cd $(SRCROOT)/emacs; \
 	$(Environment) $(Configure) $(Configure_Flags); \
 	$(MAKE) bootstrap; \
 	$(MAKE) distclean'
@@ -38,5 +38,11 @@ installsrc :
 remove-dir :
 	rm $(DSTROOT)/usr/share/info/dir
 
-install-dumpemacs: $(SRCROOT)/dumpemacs
-	$(INSTALL) -o root -g wheel -m 555 $(SRCROOT)/dumpemacs $(DSTROOT)/usr/libexec/
+install-dumpemacs:
+	$(CC) $(CFLAGS) -o $(SYMROOT)/dumpemacs -g $(SRCROOT)/dumpemacs.c \
+		$(SRCROOT)/isemacsvalid.c $(SRCROOT)/runit.c
+	$(INSTALL) -s -o root -g wheel -m 4555 $(SYMROOT)/dumpemacs $(DSTROOT)/usr/libexec/dumpemacs
+	$(CC) $(CFLAGS) -o $(SYMROOT)/emacswrapper -g $(SRCROOT)/emacswrapper.c \
+		$(SRCROOT)/isemacsvalid.c $(SRCROOT)/runit.c
+	$(INSTALL) -s -o root -g wheel -m 555 $(SYMROOT)/emacswrapper $(DSTROOT)/usr/bin/emacs
+

@@ -422,7 +422,7 @@ static void unexec_doit(int infd,int outfd)
   for (pregions = &regions; *pregions != NULL;)
     {
       if ( !((*pregions)->protection & VM_PROT_WRITE)
-	   || ((*pregions)->address >= 0x3000000))
+	   || ((*pregions)->address >= 0x8fe00000))
         {
 	  *pregions = (*pregions)->next;
         }
