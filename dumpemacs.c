@@ -17,6 +17,7 @@
 #include <mach-o/arch.h>
 
 #include "dumpemacs.h"
+#include "bo.h"			/* generated during build */
 
 void usage(void);
 int dumpemacs(int debugflag, char *output);
@@ -29,7 +30,7 @@ int main(int argc, char *argv[]) {
   int ch;
   int ret, fd;
 
-  while ((ch = getopt(argc, argv, "dvn")) != -1) {
+  while ((ch = getopt(argc, argv, "dvnV")) != -1) {
     switch (ch) {
     case 'd':
       debugopt = 1;
@@ -40,6 +41,10 @@ int main(int argc, char *argv[]) {
       break;
     case 'n':
       testopt = 1;
+      break;
+    case 'V':
+      puts(kEmacsVersion);
+      exit(0);
       break;
     default:
       usage();
@@ -127,7 +132,7 @@ int dumpemacs(int debugflag, char *output)
 {
   char tempdir[MAXPATHLEN], newpath[MAXPATHLEN];
   char *tmp = NULL;
-  int ret;
+  int ret, fd;
   struct passwd *nobody = NULL;
   uid_t nobodyUID = 0;
 
@@ -191,6 +196,13 @@ int dumpemacs(int debugflag, char *output)
   ret = chdir(newpath);
   if(ret)
     err(1, "chdir(%s)", newpath);
+  /* see emacs/src/doc.c */
+  fd = open("buildobj.lst", O_CREAT|O_WRONLY, 0444);
+  if(fd < 0)
+	  err(1, "open(buildobj.lst)");
+  if (-1 == write(fd, bo, sizeof(bo)))
+	  err(1, "write to buildobj.lst");
+  close(fd);
 
   ret = setenv("LC_ALL", "C", 1);
   if(ret)
@@ -310,6 +322,8 @@ int copythintemacs(int debugflag, const char *src, const char *dst)
 			       archCount);
   if(bestArch == NULL)
     errx(1, "No appropriate architecture in %s", src);
+  else
+    thisArch = NXGetArchInfoFromCpuType(bestArch->cputype, bestArch->cpusubtype);
 
   // we need to copy it to dst, either as-is, or thinning
   if(!isFat) {

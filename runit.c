@@ -22,9 +22,9 @@ int runit(const char * const argv[], int dropprivs)
 
     }
 
-    ret = execv(argv[0], (char * const *) argv);
+    ret = execve(argv[0], (char * const *) argv, 0);
     if(ret)
-      err(1, "execv(%s) failed", argv[0]);
+      err(1, "execve(%s) failed", argv[0]);
   } else {
     do {
       int status = 0;

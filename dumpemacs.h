@@ -1,4 +1,3 @@
-#define kEmacsVersion		"21.2"
 #define kEmacsVersionMinor	"1"
 #define kEmacsBinDir		"/usr/bin"
 #define kEmacsLibExecDir       	"/usr/libexec"
@@ -12,6 +11,9 @@
 #endif
 #ifdef __i386__
 #define kEmacsArch        "i386"
+#endif
+#ifdef __x86_64__
+#define kEmacsArch        "x86_64"
 #endif
 
 #ifndef kEmacsArch
